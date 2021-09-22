@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>ProveIt</title>
+  <meta name="description" content="Proof of possession on the Ethereum blockchain.">
+  <meta name="author" content="Noah Zinsmeister">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="180x180" href="./favicons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./favicons/favicon-16x16.png">
+  <link rel="manifest" href="./favicons/manifest.json">
+  <link rel="mask-icon" href="./favicons/safari-pinned-tab.svg" color="#5bbad5">
+  <link rel="shortcut icon" href="./favicons/favicon.ico">
+  <meta name="msapplication-config" content="./favicons/browserconfig.xml">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+  <link rel="stylesheet" href="css/main.css">
+  <script type="text/javascript" src="js/es6.js"></script>
+  <script defer src="https://use.fontawesome.com/releases/v5.0.4/js/all.js"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+  <script src="https://cdn.rawgit.com/zenorocha/clipboard.js/v1.7.1/dist/clipboard.min.js"></script>
+  <script type="text/javascript" src="https://cdn.rawgit.com/ethereum/web3.js/master/dist/web3.min.js"></script>
+  <script type="text/javascript" src="js/bundle.js"></script>
+  <script type="text/javascript" src="js/main.js"></script>
+</head>
+
+<body>
+  <main role="main">
+    <!-- Modals -->
+    <!-- file hashing -->
+    <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".modal">Large modal</button> -->
+    <div class="modal container" id="fileHashModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Processing...</h5>
+          </div>
+          <div class="modal-body">
+            Please be patient while your file is hashed. Closing this window before completion will cancel the upload. And in case you're wondering: ProveIt <strong>never</strong> sees the contents of your files, as hashing is done entirely client-side.
+          </div>
+          <div class="mt-5 w-75 text-center mx-auto">
+            <div class="progress">
+              <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="modal-footer mt-5">
+            <button type="button" class="btn btn-danger" data-dismiss="modal" id="fileHashModalButton">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- error -->
+    <div class="modal fade" tabindex="-1" id="errorModal" role="dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"></h5>
+          </div>
+          <div class="modal-body">
+          </div>
+          <div class="modal-footer mt-5">
+            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jumbotron -->
+    <div class="jumbotron">
+      <div class="container">
+        <h1 class="display-2">Pr⟠ve<strong>It</strong></h1>
+        <p class="lead">Proof of possession on the <a target="_blank" class="nounderline" href="https://www.ethereum.org/">Ethereum</a> blockchain</p>
+      </div>
+    </div>
+
+    <!-- Nav bar -->
+    <div class="container">
+      <ul class="nav nav-tabs nav-fill nav-justified h2" id="navTabs" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="prove-tab" data-toggle="tab" href="#prove" role="tab">ProveIt</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="read-tab" data-toggle="tab" href="#read" role="tab">Read</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="submit-tab" data-toggle="tab" href="#submit" role="tab">Submit</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="about-tab" data-toggle="tab" href="#about" role="tab">About</a>
+        </li>
+      </ul>
+
+      <!-- Tabs -->
+      <!-- ProveIt -->
+      <div class="tab-content" id="navTabsContent">
+        <div class="tab-pane fade show active" id="prove" role="tabpanel">
+          <h4 class="text-center mt-5 mb-3">We'd be skeptical too.</h4>
+          <p class="mb-5 w-75 mx-auto">Use the form below to check whether <strong>text</strong>, a <strong>file</strong>, or <strong>hashed data</strong> have been submitted to ProveIt. Just enter the submitter's address and their claim, then click that ProveIt button!</p>
+          <form id="proveEntry">
+            <div class="form-row">
+              <div class="form-group col-md-5">
+                <div class="input-group">
+                  <div class="input-group-addon">Address</div>
+                  <input type="text" class="form-control" placeholder="0x...">
+                </div>
+                <small class="form-text text-muted noselect">
+                  The Ethereum address of the submitter
+                </small>
+              </div>
+              <div class="form-group col-md-7">
+                <div class="input-group">
+                  <div class="input-group-btn">
+                    <button type="button" id="ProveItEntryToggle" class="btn btn-secondary dropdown-toggle input-group-addon" data-toggle="dropdown">Text</button>
+                    <div class="dropdown-menu">
+                      <h6 class="dropdown-header">Submission Type</h6>
+                      <div class="dropdown-divider"></div>
+                      <button class="dropdown-item" type="button">Text</button>
+                      <button class="dropdown-item" type="button">File</button>
+                      <button class="dropdown-item" type="button">Hash</button>
+                    </div>
+                  </div>
+                  <input type="text" class="form-control" placeholder="Your Message...">
+                </div>
+                <small class="form-text text-muted noselect">
+                  The <strong>text</strong>, <strong>file</strong>, or <strong>hash</strong> that was submitted
+                </small>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="text-center form-group col-md-2 col-xl-1">
+                <button type="button" id="ProveItButton" class="h-100 btn-block btn btn-outline-primary nofocus cursor-pointer">ProveIt</button>
+              </div>
+              <div class="form-group col mb-0 text-center">
+                <div class="alert alert-dark noselect" role="alert">
+                  &nbsp;
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Read -->
+        <div class="tab-pane fade" id="read" role="tabpanel">
+          <h4 class="text-center mt-5 mb-3">Take a deeper dive.</h4>
+          <p class="mb-3 w-75 mx-auto">Feeling curious? Click below to see all the users who have a submission in ProveIt.</p>
+          <div class="col text-center">
+            <button type="button" id="getRegisteredUsers" class="btn btn-outline-primary nofocus cursor-pointer" data-toggle="collapse" href="#registeredUsersAddresses" role="tab">Registered User List <span id="usersBadge" class="badge badge-primary badge-pill"></span></button>
+          </div>
+          <br>
+          <ul class="list-group scrollable" id="accordionUsers" role="tablist">
+            <div id="registeredUsersAddresses" class="collapse" role="tabpanel">
+              <ul id="masterUserParent" class="list-group">
+              </ul>
+            </div>
+          </ul>
+
+          <p class="mt-5 w-75 mx-auto">Or maybe you'd like to check out a particular user's submission hashes (enigmatic, aren't they?).</p>
+          <form id="entriesForm">
+            <div class="form-row">
+              <div class="form-group col-md-10 col-xl-11">
+                <div class="input-group">
+                  <div class="input-group-addon">Address</div>
+                  <input type="text" class="form-control" id="userEntriesAddress" placeholder="0x...">
+                </div>
+                <small class="form-text text-muted noselect">
+                  The Ethereum address of the submitter
+                </small>
+              </div>
+              <div class="form-group col-md-2 col-xl-1">
+                <button type="button" class="btn btn-block btn-outline-primary nofocus" id="userEntriesSubmit">Query</button>
+              </div>
+            </div>
+            <div class="scrollable">
+              <ul class="list-group mt-3" id="userEntries">
+              </ul>
+            </div>
+          </form>
+        </div>
+
+
+        <!-- Submission -->
+        <div class="tab-pane fade" id="submit" role="tabpanel">
+          <h4 class="text-center mt-5 mb-3">Got something to prove?</h4>
+          <p class="mb-5 w-75 mx-auto">Use the form below to submit to ProveIt. We recommend starting off with a <strong>text</strong> or <strong>file</strong> submission. If you choose to lock up any ether with your entry, you will only be able to recover it by destroying the associated submission.</p>
+          <form id="submitEntry">
+            <div class="form-row">
+              <div class="form-group col-md-8">
+                <div class="input-group">
+                  <div class="input-group-btn">
+                    <button type="button" id="submitEntryToggle" class="btn btn-secondary dropdown-toggle input-group-addon" data-toggle="dropdown">Text</button>
+                    <div class="dropdown-menu">
+                      <h6 class="dropdown-header">Submission Type</h6>
+                      <div class="dropdown-divider"></div>
+                      <button class="dropdown-item" type="button">Text</button>
+                      <button class="dropdown-item" type="button">File</button>
+                      <button class="dropdown-item" type="button">Hash</button>
+                    </div>
+                  </div>
+                  <input type="text" class="form-control" placeholder="Your Message...">
+                </div>
+                <small class="form-text text-muted noselect">
+                  The <strong>text</strong>, <strong>file</strong>, or <strong>hash</strong> that you wish to submit
+                </small>
+              </div>
+              <div class="form-group col-md-4">
+                <div class="input-group">
+                  <div class="input-group-addon">Amount (ETH)</div>
+                  <input type="text" class="form-control" placeholder="0">
+                </div>
+                <small class="form-text text-muted noselect">
+                  The optional amount of ether you want to lock up
+                </small>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-2 col-xl-1">
+                <button type="button" id="submitButton" class="h-100 btn-block btn btn-outline-primary nofocus cursor-pointer">Submit</button>
+              </div>
+              <div class="form-group col mb-0 text-center">
+                <div class="alert alert-dark noselect" role="alert">
+                  &nbsp;
+                </div>
+              </div>
+            </div>
+          </form>
+          <form id="removeEntry">
+            <h4 class="text-center mt-5 mb-3">I take it back!</h4>
+            <p class="mb-5 w-75 mx-auto">Want to rescind a submission and reclaim any locked ether? No problem, use the form below.</p>
+            <div class="form-row">
+              <div class="form-group col-12">
+                <div class="input-group">
+                  <div class="input-group-btn">
+                    <button type="button" id="removeEntryToggle" class="btn btn-secondary dropdown-toggle input-group-addon" data-toggle="dropdown">Text</button>
+                    <div class="dropdown-menu">
+                      <h6 class="dropdown-header">Submission Type</h6>
+                      <div class="dropdown-divider"></div>
+                      <button class="dropdown-item" type="button">Text</button>
+                      <button class="dropdown-item" type="button">File</button>
+                      <button class="dropdown-item" type="button">Hash</button>
+                    </div>
+                  </div>
+                  <input type="text" class="form-control" placeholder="Your Message...">
+                </div>
+                <small class="form-text text-muted noselect">
+                  The <strong>text</strong>, <strong>file</strong>, or <strong>hash</strong> associated with the submission you'd like to remove
+                </small>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-2 col-xl-1">
+                <button type="button" id="removeButton" class="h-100 btn-block btn btn-outline-primary nofocus cursor-pointer">Remove</button>
+              </div>
+              <div class="form-group col mb-0 text-center">
+                <div class="alert alert-dark noselect" role="alert">
+                  &nbsp;
+                </div>
+              </div>
+            </div>
+          </form>
+
+        </div>
+
+        <!-- About -->
+        <div class="tab-pane fade text-center" id="about" role="tabpanel">
+          <h4 class="text-center mt-5 mb-3">Lay claim to your history.</h4>
+          <p class="w-75 mx-auto text-left">
+            ProveIt is a decentralized application, or ĐApp, powered by <a target="_blank" class="nounderline" href="https://www.ethereum.org/">Ethereum</a>. Its value proposition is simple: users gain the ability to prove that they said or possessed something, <em>anything</em>, without the need to rely on a trusted intermediary. This is an extraordinary and unprecedented phenomenon with implications for intellectual property rights, credibility in peer-to-peer networks, and much more.<br><br>
+          </p>
+          <h4 class="text-center mt-3 mb-3">Quickstart Guide</h4>
+          <div class="w-75 mx-auto">
+            <div class="row align-items-center pt-2 pb-2 border rounded border-secondary">
+              <div class="col-4 col-md-2 text-center">
+                <i class="fas fa-file-alt h1 my-auto"></i>
+              </div>
+              <div class="col-8 col-md-10 text-left">
+                First, decide what <strong>text</strong> or <strong>file</strong> you want to be able to prove that you possessed.
+              </div>
+            </div>
+            <br>
+            <div class="row align-items-center pt-2 pb-2 border rounded border-secondary">
+              <div class="col-8 col-md-10 text-right">
+                Next, since ProveIt never stores unencrypted data, we have to compute a unique identifier for your submission. ProveIt uses a state-of-the-art hashing algorithm to ensure that the content of your submission remains anonymous while still allowing anyone to verify it. Any text or file you submit to ProveIt will automatically be processed with secure, client-side hashing. Advanced users are invited to compute and submit their own <strong>hashes</strong> (make sure to use Keccak-256!)
+              </div>
+              <div class="col-4 col-md-2">
+                <i class="fas fa-key h1 my-auto"></i>
+              </div>
+            </div>
+            <br>
+            <div class="row align-items-center pt-2 pb-2 border rounded border-secondary">
+              <div class="col-4 col-md-2">
+                <i class="fas fa-exchange-alt h1 my-auto"></i>
+              </div>
+              <div class="col-8 col-md-10 text-left">
+                Finally, your identifier is submitted to ProveIt alongside an optional amount of ether you can lock up to provide credibility (the ether cannot be recovered without destroying the associated submission).
+              </div>
+            </div>
+            <br>
+            <div class="row align-items-center pt-2 pb-2 border rounded border-secondary">
+              <div class="col-8 col-md-10 text-right">
+                Congratulations, your submission is now immutably stored in the blockchain! At your discretion you can release the original <strong>text</strong> or <strong>file</strong>, allowing anyone to verify that you possessed it.
+              </div>
+              <div class="col-4 col-md-2">
+                <i class="fas fa-link h1 my-auto"></i>
+              </div>
+            </div>
+          </div>
+          <br><br>
+          <p class="w-75 mx-auto text-left">
+            More information on ProveIt (including hypothetical use cases), and the entirety of the open-source codebase can be found on <a target="_blank" class="nounderline" href="https://github.com/NoahZinsmeister/ProveIt">Github</a>.
+          </p>
+          <p class="h2 mt-3 text-center">⟠</p>
+        </div>
+      </div>
+    </div>
+    <div class="mt-2 noselect">&nbsp;</div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer container-fluid">
+    <div class="d-flex justify-content-between">
+      <div class="noselect">
+        &nbsp;
+      </div>
+      <div>
+        <button id="web3Button" type="button" class="my-auto btn btn-outline-secondary nofocus cursor-pointer" data-toggle="popover" title="Web3 Provider Error" data-placement="auto" data-trigger="click" data-content="An unknown error occurred. If this problem doesn't self-correct within a few seconds, please try refreshing the page.">
+          Web3
+        </button>
+      </div>
+    </div>
+  </footer>
+
+
+</body>
+</html>
